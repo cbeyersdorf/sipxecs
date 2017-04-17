@@ -10,6 +10,8 @@
 package org.sipfoundry.sipxconfig.cdr;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -80,6 +82,7 @@ import org.springframework.jdbc.core.SingleColumnRowMapper;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.DomDriver;
 
 public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, FeatureProvider, AddressProvider,
         ProcessProvider, FirewallProvider, ArchiveProvider {
@@ -257,7 +260,8 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
         Calendar c = Calendar.getInstance();
         statusCode = client.executeMethod(getMethod);
         if (statusCode == HttpStatus.SC_OK) {
-            String xml = getMethod.getResponseBodyAsString();
+            //String xml = getMethod.getResponseBodyAsString();
+            InputStreamReader xml = new InputStreamReader(getMethod.getResponseBodyAsStream(),"UTF-8");
             List<ActiveCallREST> list = mapActiveCalls(xml);
             for (ActiveCallREST call : list) {
                 ActiveCallCdr cdr = new ActiveCallCdr();
@@ -273,7 +277,7 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
         return cdrs;
     }
 
-    private List<ActiveCallREST> mapActiveCalls(String xml) {
+    private List<ActiveCallREST> mapActiveCalls(InputStreamReader xml) {
         XStream xstream = new XStream();
         xstream.alias("cdrs", List.class);
         xstream.alias("cdr", ActiveCallREST.class);
