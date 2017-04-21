@@ -232,8 +232,8 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
 
     @Override
     public List<Cdr> getActiveCalls() {
-        try {
-            CdrService cdrService = getCdrService();
+        /*try {
+            /*CdrService cdrService = getCdrService();
             ActiveCall[] activeCalls = cdrService.getActiveCalls();
             List<Cdr> cdrs = new ArrayList<Cdr>(activeCalls.length);
             for (ActiveCall call : activeCalls) {
@@ -247,6 +247,11 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
             }
             return cdrs;
         } catch (RemoteException e) {
+            throw new UserException(e);
+        }*/
+        try {
+            return getActiveCallsREST(null);
+        } catch (IOException e) {
             throw new UserException(e);
         }
     }
@@ -295,8 +300,13 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
 
     private String getActiveCdrsRestUrl(User user) {
         Address address = getCdrAgentAddress();
-        return String.format("http://%s:%d/activecdrs?name=%s", address.getAddress(), address.getPort(),
+        
+        if (null == user) {
+            return String.format("http://%s:%d/activecdrs", address.getAddress(), address.getPort());
+        } else {
+            return String.format("http://%s:%d/activecdrs?name=%s", address.getAddress(), address.getPort(),
                 user.getUserName());
+        }
     }
 
     public CdrService getCdrService() {
