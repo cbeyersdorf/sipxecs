@@ -260,8 +260,7 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
         Calendar c = Calendar.getInstance();
         statusCode = client.executeMethod(getMethod);
         if (statusCode == HttpStatus.SC_OK) {
-            //String xml = getMethod.getResponseBodyAsString();
-            InputStreamReader xml = new InputStreamReader(getMethod.getResponseBodyAsStream(),"UTF-8");
+            String xml = getMethod.getResponseBodyAsString();
             List<ActiveCallREST> list = mapActiveCalls(xml);
             for (ActiveCallREST call : list) {
                 ActiveCallCdr cdr = new ActiveCallCdr();
@@ -277,7 +276,7 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
         return cdrs;
     }
 
-    private List<ActiveCallREST> mapActiveCalls(InputStreamReader xml) {
+    private List<ActiveCallREST> mapActiveCalls(String xml) {
         XStream xstream = new XStream();
         xstream.alias("cdrs", List.class);
         xstream.alias("cdr", ActiveCallREST.class);
